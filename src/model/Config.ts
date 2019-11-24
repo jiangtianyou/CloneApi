@@ -3,7 +3,7 @@
  */
 
 export default class Config {
-  static moduleName: string = 'community';
-  static baseController: string = 'com.wdit.modules.base.controller.CommunityBaseController';
-  static hasSiteId: boolean = true;
+  static baseUrl: string = 'http://www.xiaoyaoji.cn/';
+  static key: string = 'postman-key'
+  static collectionName: string = '小幺鸡文档'
 }

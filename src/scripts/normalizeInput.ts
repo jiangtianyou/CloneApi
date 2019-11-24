@@ -10,7 +10,7 @@ import CmdInput from "../model/CmdInput";
 let BASE_URL = '';
 
 export function parseInput(bean: string) :CmdInput {
-
+  let fullPath = getFullPath(bean);
   return null;
 }
 

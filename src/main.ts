@@ -6,6 +6,8 @@ import * as fs from "fs";
 import {JSDOM} from 'jsdom';
 import {ResourceLoader} from 'jsdom';
 import * as reg from './utils/RegexUtil';
+import {isAwaitExpression} from "tsutils";
+import {parse} from "./scripts/parsePage";
 // 1、检验输入文件并获取路径
 
 const exit = process.exit,
@@ -85,34 +87,17 @@ function getDefaultConfig() {
   return data;
 }
 
-//
-// try {
-//
-//   JSDOM.fromURL('http://www.xiaoyaoji.cn/doc/1QnSRmRbAx', {
-//     referrer: "http://www.xiaoyaoji.cn",
-//     // runScripts: 'dangerously'
-//   })
-//     .then(json => {
-//       let htmlText = json.serialize();
-//       // 提取出doc对象
-//       let result = reg.firstMatch(/(<script>([^a-zA-Z0-9]*var doc = [\s\S]*?)<\/script>)/g,htmlText);
-//
-//       let jsdom = new JSDOM(result, {runScripts: "dangerously"});
-//       let windowElement = jsdom.window['doc'];
-//       console.log(windowElement);
-//       console.log(json.window['doc']);
-//       console.log('正则匹配的结果:', result);
-//
-//     })
-//   ;
-// }catch (e) {
-//   // console.log(e)
-// }
+
+let cheerio = require('cheerio');
+let req = require('./utils/RequestUtil');
 
 
-let myu = require('./utils/RequestUtil');
+let path = 'http://www.xiaoyaoji.cn/doc/1R2L3F3GY7';
 
-let urlContent = myu.getUrlContent('http://www.baidu.com/');
-urlContent.then(content =>{
-  console.log(content);
+
+let promise = parse(path);
+
+// 从小幺鸡提取到的数据
+promise.then(arr => {
+  console.log('从小幺鸡提取到的数据==>', JSON.stringify(arr, null, 2));
 })
