@@ -59,7 +59,7 @@ function initBaseUrl(path: string): void {
 async function parseApiPage(path: string): Promise<ApiItem[]> {
   let rtn = [];
   let urlContent = getUrlContent(path);
-  await urlContent.then(content => {
+  await urlContent.then(async content => {
     // 0、解析出项目名、ID-Name对应关系等数据
     initContext(content);
     let $ = cheerio.load(content);
@@ -70,16 +70,13 @@ async function parseApiPage(path: string): Promise<ApiItem[]> {
       console.log('本地址将作为文件夹进行解析')
     } else {
       let yaoJiData1 = getYaoJiData(path, content);
-      // console.log('从小幺鸡单个文件中提取到的数据=>', yaoJiData1)
     }
     // 2、当做文件夹进行处理
     let urls = _extractFolderUrl(content);
     for (let url of urls) {
-      console.log('正在处理的页面:' + url);
-      let urlContent1 =  getUrlContent(url);
-      urlContent1.then(content => {
+      let urlContent1 = getUrlContent(url);
+      await urlContent1.then((content) => {
         let yaoJiData = getYaoJiData(url, content);
-        console.log('从小幺鸡提取到的数据==>', JSON.stringify(yaoJiData, null, 2));
         rtn.push(yaoJiData);
       });
     }
