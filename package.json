@@ -1,5 +1,5 @@
 {
-  "name": "@jiangtianyou/autocrud",
+  "name": "@jiangtianyou/cloneapi",
   "version": "1.0.0",
   "description": "Command line tools to generate common crud code",
   "homepage": "https://github.com/jiangtianyou/AutoCrud",
