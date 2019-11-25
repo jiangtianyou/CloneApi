@@ -26,6 +26,7 @@ export function initEnv(): boolean {
     //  创建默认配置
     fs.writeFileSync(configFile, JSON.stringify(getDefaultConfig(), null, 2), 'utf-8');
     console.log(chalk.bgRed('配置不正确，请先调用命令 api config your-postman-key配置key'));
+    process.exit();
   }
   return false;
 }

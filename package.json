@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "push": "git add -A && git commit -m change && git push -u origin master",
-    "pub": "npm publish & git add -A && git commit -m modify && npm run push",
+    "pub": "npm version patch && npm publish --access public & git add -A && git commit -m modify && npm run push",
     "update-ignore": "git rm -r --cached . && git add .",
     "clean": "rimraf coverage build tmp",
     "build": "tsc -p tsconfig.json",

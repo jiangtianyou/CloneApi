@@ -16,6 +16,10 @@ let ID_NAME_MAP = {};
  * 解析小幺鸡页面
  */
 export async function parse(path: string): Promise<ApiItem[]> {
+  if (!path.startsWith('http:')) {
+    console.log(chalk.bgRed('不是有效的小幺鸡地址'));
+    process.exit();
+  }
   initBaseUrl(path);
   return parseApiPage(path);
 }
@@ -82,7 +86,7 @@ async function parseApiPage(path: string): Promise<ApiItem[]> {
   if (yaoji) {
     rtn.push(yaoji);
   }
-  extractSpinner.succeed(`从下载的api页面中提取数据成功. 共提取到${chalk.bgYellowBright('【'+rtn.length+'条】')}api数据'`);
+  extractSpinner.succeed(`从下载的api页面中提取数据成功. 共提取到${chalk.bgYellow('【' + rtn.length + '条】')}api数据'`);
   return rtn;
 }
 

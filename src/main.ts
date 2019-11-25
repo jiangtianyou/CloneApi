@@ -6,7 +6,6 @@ import { saveCollection } from './scripts/postman';
 import { createConfig, initEnv } from './scripts/setEnv';
 import * as program from 'commander';
 import * as ck from 'chalk';
-import * as ora from 'ora';
 
 const exit = process.exit,
   log = console.log;
