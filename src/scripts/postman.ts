@@ -100,7 +100,7 @@ function saveCollectionData(id: string, toSaveData: any) {
   if (!id) {
     //创建
     request.post(options, (err, res, body) => {
-      saveSpinner.succeed(ck.magenta(`推送数据到postman成功推送成功,打开postman看看吧 ${ck.redBright('❤ ❤ ❤')}！:)`));
+      saveSpinner.succeed(ck.magenta(`推送数据到postman成功推送成功,打开postman看看吧 ${ck.redBright('❤ ❤ ❤')}:)`));
       if (err) {
         saveSpinner.fail();
       }
@@ -109,7 +109,7 @@ function saveCollectionData(id: string, toSaveData: any) {
     //更新
     options.url = URL.UPDATE_COLLECTION.replace('{{collection_uid}}', id);
     request.put(options, (err, res, body) => {
-      saveSpinner.succeed(ck.bgWhite(ck.magenta(`推送数据到postman成功推送成功,打开postman看看吧 ${ck.redBright('❤')}！:)`)));
+      saveSpinner.succeed(ck.magenta(`推送数据到postman成功推送成功,打开postman看看吧 ${ck.redBright('❤ ❤ ❤')} :)`));
       if (err) {
         saveSpinner.fail();
       }
