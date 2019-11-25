@@ -6,7 +6,7 @@
 
 ## 安装
 
-`npm i @jiagntianyou -g`
+`npm i @jiangtianyou/cloneapi -g`
 
 ## 配置
 
