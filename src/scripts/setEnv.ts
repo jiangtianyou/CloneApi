@@ -39,7 +39,7 @@ export function createConfig(data): void {
 
 function getDefaultConfig() {
   let data = {
-    key: 'you-postman-key',
+    key: '',
   };
   return data;
 }
