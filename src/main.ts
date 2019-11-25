@@ -10,7 +10,7 @@ import * as ck from 'chalk';
 const exit = process.exit,
   log = console.log;
 
-program.version('1.0.0')
+program.version('1.0.4')
   .arguments('<bean> [key]')
   .description('clone小幺鸡api到postman')
   .action(async function(bean, key) {
