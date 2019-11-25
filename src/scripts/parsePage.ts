@@ -1,14 +1,15 @@
-import ApiItem from "../model/ApiItem";
-import {URL} from "url";
-import Config from "../model/Config";
-import {getUrlContent} from "../utils/RequestUtil";
-import {firstMatch} from "../utils/RegexUtil";
-import {JSDOM} from "jsdom";
-import * as jp from "jsonpath";
-import * as cheerio from "cheerio";
+import ApiItem from '../model/ApiItem';
+import { URL } from 'url';
+import Config from '../model/Config';
+import { getUrlContent } from '../utils/RequestUtil';
+import { firstMatch } from '../utils/RegexUtil';
+import { JSDOM } from 'jsdom';
+import * as jp from 'jsonpath';
+import * as cheerio from 'cheerio';
 
-let ID_NAME_MAP = {}
+let ID_NAME_MAP = {};
 
+// todo 递归迭代文件夹
 /**
  * 解析小幺鸡页面
  */
@@ -26,17 +27,16 @@ function initContext(content: string): void {
   $('.name-item').each((index, item) => {
     let id = $(item).attr('data-id');
     let name = $(item).attr('data-name');
-    ID_NAME_MAP[id] = (name || '').trim();
-  })
-  console.log('键值对=>', ID_NAME_MAP)
+    ID_NAME_MAP[id + ''] = (name || '').trim();
+  });
   // 提取环境相关代码的script
   let envScript = _extractEnvScript(content);
   if (envScript) {
     // 替换掉里面的reload代码，否则jsdom内部会抛出异常，且没法捕捉，影响观感
-    envScript = envScript.replace('reload()', 'placeholder')
+    envScript = envScript.replace('reload()', 'placeholder');
     let wd = {};
     try {
-      wd = new JSDOM(envScript, {runScripts: "dangerously"}).window;
+      wd = new JSDOM(envScript, { runScripts: 'dangerously' }).window;
     } catch (e) {
     }
     if (wd['_projectName_']) {
@@ -58,41 +58,43 @@ function initBaseUrl(path: string): void {
  */
 async function parseApiPage(path: string): Promise<ApiItem[]> {
   let rtn = [];
-  let urlContent = getUrlContent(path);
-  await urlContent.then(async content => {
-    // 0、解析出项目名、ID-Name对应关系等数据
-    initContext(content);
-    let $ = cheerio.load(content);
-    let title = $('title').text();
-    // 1、作为单个文件解析
-    let script = _extractDataScript(content);
-    if (!script) {
-      console.log('本地址将作为文件夹进行解析')
-    } else {
-      let yaoJiData1 = getYaoJiData(path, content);
-    }
+  let content = await getUrlContent(path);
+  console.log('正在从下载的页面中提取数据')
+  // 0、解析出项目名、ID-Name对应关系等数据
+  initContext(content);
+  let $ = cheerio.load(content);
+  // 1、作为单个文件解析
+  let script = _extractDataScript(content);
+  if (!script) {
+    console.log('本地址将作为文件夹进行解析');
     // 2、当做文件夹进行处理
     let urls = _extractFolderUrl(content);
     for (let url of urls) {
-      let urlContent1 = getUrlContent(url);
-      await urlContent1.then((content) => {
-        let yaoJiData = getYaoJiData(url, content);
+      let content = await getUrlContent(url);
+      let yaoJiData = getYaoJiData(url, content);
+      if (yaoJiData) {
         rtn.push(yaoJiData);
-      });
+      }
     }
-  })
+  }
+  let yaoji = getYaoJiData(path, content);
+  if (yaoji) {
+    rtn.push(yaoji);
+  }
+  console.log(`共提取到${rtn.length}条api数据`);
   return rtn;
 }
 
+
 function _extractFolderUrl(content: string): string[] {
-  let rtn = []
+  let rtn = [];
   let $ = cheerio.load(content);
   let $elements = $('.uk-list-bullet a');
   if ($elements.length != 0) {
     $elements.each((index, ele) => {
       let subUrl = $(ele).attr('href');
-      rtn.push(Config.baseUrl + '/' + subUrl);
-    })
+      rtn.push(Config.baseUrl + subUrl);
+    });
   }
   return rtn;
 }
@@ -103,7 +105,7 @@ function getYaoJiData(fullPath: string, content: string): ApiItem {
   if (!script) {
     return null;
   }
-  let wd = new JSDOM(script, {runScripts: "dangerously"}).window;
+  let wd = new JSDOM(script, { runScripts: 'dangerously' }).window;
   let doc = wd['doc'];
   if (doc && doc['content']) {
     let contentObj = JSON.parse(doc['content']);
@@ -111,7 +113,7 @@ function getYaoJiData(fullPath: string, content: string): ApiItem {
       return null;
     }
     let apiItem = toApiItem(fullPath, doc);
-    return apiItem
+    return apiItem;
   }
   return null;
 }
@@ -127,26 +129,32 @@ function toApiItem(fullPath: string, doc: Object): ApiItem {
     args = args.map(item => {
       return {
         name: item['name'],
-        description: item['description'] || ''
-      }
-    })
+        description: item['description'] || '',
+      };
+    });
   }
   let folderName = ID_NAME_MAP[doc['parentId']] || '';
+  let description = contentObj['description'] || '';
+  if (description) {
+    // 去除html代码
+    let $ = cheerio.load(description);
+    description = $('pre').text();
+  }
   return new ApiItem(id, name, folderName, fullPath, {
     contentType: contentObj['contentType'],
-    description: contentObj['description'],
+    description: description,
     requestArgs: args,
   });
 }
 
 function _extractDataScript(content: string): string {
-  let reg = /(<script>([^a-zA-Z0-9]*var doc = [\s\S]*?)<\/script>)/g
+  let reg = /(<script>([^a-zA-Z0-9]*var doc = [\s\S]*?)<\/script>)/g;
   return firstMatch(reg, content);
 }
 
 
 function _extractEnvScript(content: string): string {
-  let reg = /(<script>([^a-zA-Z0-9]*window._edit_ = [\s\S]*?)<\/script>)/g
+  let reg = /(<script>([^a-zA-Z0-9]*window._edit_ = [\s\S]*?)<\/script>)/g;
   return firstMatch(reg, content);
 }
 

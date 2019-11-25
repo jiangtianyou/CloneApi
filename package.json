@@ -2,7 +2,7 @@
   "name": "@jiangtianyou/cloneapi",
   "version": "1.0.0",
   "description": "Command line tools to generate common crud code",
-  "homepage": "https://github.com/jiangtianyou/AutoCrud",
+  "homepage": "https://github.com/jiangtianyou/CloneApi",
   "keywords": [
     "postman",
     "api"
@@ -19,29 +19,33 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
+    "chalk": "^3.0.0",
     "cheerio": "^1.0.0-rc.3",
     "commander": "^4.0.1",
     "jsdom": "^15.2.1",
     "jsonpath": "^1.0.2",
-    "lodash": "^4.17.15",
+    "ora": "^4.0.3",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.8",
     "tslib": "^1.10.0"
   },
   "bin": {
-    "api": "build/src/main.js"
+    "clone": "build/src/main.js",
+    "c": "build/src/main.js"
   },
   "engines": {
     "node": ">= 10.16.3",
     "npm": ">=6.13.0"
   },
   "devDependencies": {
+    "@types/chalk": "^2.2.0",
     "@types/cheerio": "^0.22.14",
     "@types/jest": "^24.0.21",
     "@types/jsdom": "^12.2.4",
     "@types/jsonpath": "^0.2.0",
     "@types/lowdb": "^1.0.9",
     "@types/node": "^10.16.3",
+    "@types/ora": "^3.2.0",
     "@types/request": "^2.48.3",
     "@types/request-promise-native": "^1.0.17",
     "jest": "~24.9.0",
