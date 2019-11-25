@@ -100,7 +100,7 @@ function saveCollectionData(id: string, toSaveData: any) {
   if (!id) {
     //创建
     request.post(options, (err, res, body) => {
-      saveSpinner.succeed(ck.bgGreen('推送数据(新建)到postman成功,打开postman看看吧！:)'));
+      saveSpinner.succeed(ck.bgGreen(ck.magenta('推送数据(新建)到postman成功,打开postman看看吧！:)')));
       if (err) {
         saveSpinner.fail();
       }

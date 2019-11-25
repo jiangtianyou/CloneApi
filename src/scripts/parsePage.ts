@@ -89,7 +89,7 @@ async function parseApiPage(path: string): Promise<ApiItem[]> {
     rtn.push(yaoji);
   }
   let msg = `从下载的api页面中提取数据成功. 共提取到${rtn.length}条api数据'`;
-  extractSpinner.succeed(`${chalk.bgGreen(msg)}`);
+  extractSpinner.succeed(`${chalk.magentaBright(msg)}`);
   return rtn;
 }
 
