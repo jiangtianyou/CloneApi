@@ -7,6 +7,8 @@ import * as jp from 'jsonpath';
 import Config from '../model/Config';
 import * as req from 'request-promise-native';
 import * as ck from 'chalk';
+import * as ora from 'ora';
+
 
 const exit = process.exit,
   log = console.log;
@@ -68,31 +70,6 @@ function buildSingleRequest(api: ApiItem) {
   };
 }
 
-function doAfterCheckCollectionExist(data: any) {
-  let toSaveData = null,
-    id = '';
-  if (data === null) {
-    // 创建集合保存数据
-    toSaveData = _buildBrandNewPostmanData(entityArrGlobal);
-  } else {
-    // 与旧的集合合并调用update接口
-    let itemArr = jp.query(data, '$.collection.item.*');
-    id = jp.query(data, '$.collection.info._postman_id')[0];
-    let item = {
-      'name': getFolderName(entityArrGlobal),
-      'item': entityArrGlobal.map(item => buildSingleRequest(item)),
-    };
-    itemArr.push(item);
-    jp.apply(data, '$.collection.item', function(item) {
-      return itemArr;
-    });
-    // 对itemArr设置到data上 然后更新
-    toSaveData = data;
-  }
-  //最后需要保存的数据
-  saveCollectionData(id, toSaveData);
-}
-
 /**
  * 返回就的collection数
  */
@@ -118,21 +95,24 @@ export async function saveCollection(rawData: ApiItem[]) {
 
 
 function saveCollectionData(id: string, toSaveData: any) {
-  console.log('推送数据到postman....');
-
+  const saveSpinner = ora('推送数据到postman....').start();
   let options = getOptions(URL.CREATE_COLLECTION);
   if (!id) {
     //创建
     request.post(options, (err, res, body) => {
-      console.log('创建集合返回-->', body);
-      log(ck.bgGreen('推送成功,打开postman看看吧！:)'));
+      saveSpinner.succeed(ck.bgGreen('推送数据(新建)成功,打开postman看看吧！:)'));
+      if (err) {
+        saveSpinner.fail();
+      }
     }).json(toSaveData);
   } else {
     //更新
     options.url = URL.UPDATE_COLLECTION.replace('{{collection_uid}}', id);
     request.put(options, (err, res, body) => {
-      console.log('推送数据返回:\n', body);
-      log(ck.bgGreen('推送成功,打开postman看看吧！:)'));
+      saveSpinner.succeed(ck.bgGreen('推送数据(更新)成功推送成功,打开postman看看吧！:)'));
+      if (err) {
+        saveSpinner.fail();
+      }
     }).json(toSaveData);
   }
 }

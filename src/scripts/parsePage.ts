@@ -6,6 +6,8 @@ import { firstMatch } from '../utils/RegexUtil';
 import { JSDOM } from 'jsdom';
 import * as jp from 'jsonpath';
 import * as cheerio from 'cheerio';
+import * as chalk from 'chalk';
+import * as ora from 'ora';
 
 let ID_NAME_MAP = {};
 
@@ -59,14 +61,13 @@ function initBaseUrl(path: string): void {
 async function parseApiPage(path: string): Promise<ApiItem[]> {
   let rtn = [];
   let content = await getUrlContent(path);
-  console.log('正在从下载的页面中提取数据')
+  const extractSpinner = ora('正在从下载的页面中，提取数据').start();
   // 0、解析出项目名、ID-Name对应关系等数据
   initContext(content);
   let $ = cheerio.load(content);
   // 1、作为单个文件解析
   let script = _extractDataScript(content);
   if (!script) {
-    console.log('本地址将作为文件夹进行解析');
     // 2、当做文件夹进行处理
     let urls = _extractFolderUrl(content);
     for (let url of urls) {
@@ -81,7 +82,7 @@ async function parseApiPage(path: string): Promise<ApiItem[]> {
   if (yaoji) {
     rtn.push(yaoji);
   }
-  console.log(`共提取到${rtn.length}条api数据`);
+  extractSpinner.succeed('提取成功. 共提取到' + chalk.bgGreen(rtn.length) + '条api数据');
   return rtn;
 }
 
