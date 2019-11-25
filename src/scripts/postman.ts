@@ -74,6 +74,7 @@ function buildSingleRequest(api: ApiItem) {
  * 返回就的collection数
  */
 export async function saveCollection(rawData: ApiItem[]) {
+  const convertSpinner = ora('将数据转换成postman需要的数据').start();
   let options = getOptions(URL.GET_ALL_COLLECTION);
   let resText = await req.get(options);
   let names: CollectionItem[] = jp.query(JSON.parse(resText), '$.collections.*');
@@ -85,10 +86,12 @@ export async function saveCollection(rawData: ApiItem[]) {
     // 将旧数据与新数据进行合并然后保存
     let oldData = JSON.parse(collectionText);
     let toSaveData = _mergeWithOldPostmanData(rawData, oldData);
+    convertSpinner.succeed('数据转换完成')
     saveCollectionData(oldId[0], toSaveData);
   } else {
     // 转换成postman的数据进行返回
     let toSaveData = _buildBrandNewPostmanData(rawData);
+    convertSpinner.succeed('数据转换完成')
     saveCollectionData(null, toSaveData);
   }
 }
@@ -100,9 +103,9 @@ function saveCollectionData(id: string, toSaveData: any) {
   if (!id) {
     //创建
     request.post(options, (err, res, body) => {
-      saveSpinner.succeed(ck.magentaBright(`成功推送数据到postman`));
+      saveSpinner.succeed(`成功推送数据到postman`);
       // logck);
-      saveSpinner.succeed(ck.redBright('Done! ❤ ❤ ❤ '))
+      saveSpinner.succeed(ck.redBright('Done! ❤ ❤ ❤ '));
       if (err) {
         saveSpinner.fail();
       }
@@ -111,8 +114,8 @@ function saveCollectionData(id: string, toSaveData: any) {
     //更新
     options.url = URL.UPDATE_COLLECTION.replace('{{collection_uid}}', id);
     request.put(options, (err, res, body) => {
-      saveSpinner.succeed(ck.magentaBright(`成功推送数据到postman`));
-      saveSpinner.succeed(ck.redBright('Done! ❤ ❤ ❤'))
+      saveSpinner.succeed(`成功推送数据到postman`);
+      saveSpinner.succeed(ck.redBright('Done! ❤ ❤ ❤'));
       if (err) {
         saveSpinner.fail();
       }
