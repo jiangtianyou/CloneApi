@@ -65,7 +65,7 @@ export async function printTodayJoke(): Promise<string> {
   if (todayJoke) {
     // 打印今日笑话
     console.log('\n\n');
-    console.log('今日笑话:)\n' + chalk.magentaBright(todayJoke));
+    console.log('今日笑话:\n' + chalk.magentaBright(todayJoke));
   }
   return todayJoke;
 }

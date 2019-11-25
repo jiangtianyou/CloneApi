@@ -93,7 +93,7 @@ async function saveCollectionData(id: string, toSaveData: any) {
     let res = req.post(options);
     await res.then(content => {
       saveSpinner.succeed(`成功推送数据到postman`);
-      saveSpinner.succeed(ck.redBright('Done! :)'));
+      saveSpinner.succeed('Done! :)');
     })
       .catch(err => {
         saveSpinner.fail('请查询postman key是否已过期！（创建时如果为默认选项key有效为为60天）');
@@ -105,7 +105,7 @@ async function saveCollectionData(id: string, toSaveData: any) {
     let resPro = req.put(options);
     await resPro.then(content => {
       saveSpinner.succeed(`成功推送数据到postman`);
-      saveSpinner.succeed(ck.redBright('Done! :)'));
+      saveSpinner.succeed('Done! :)');
     })
       .catch(err => {
         saveSpinner.fail('请查询postman key是否已过期！（创建时如果为默认选项key有效为为60天）');
