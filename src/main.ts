@@ -3,7 +3,7 @@
 import ApiItem from './model/ApiItem';
 import { parse } from './scripts/parsePage';
 import { saveCollection } from './scripts/postman';
-import { createConfig, initEnv } from './scripts/setEnv';
+import { createConfig, printTodayJoke, initEnv } from './scripts/setEnv';
 import * as program from 'commander';
 import * as ck from 'chalk';
 
@@ -25,6 +25,9 @@ program.version('1.0.4')
       exit();
     }
     await saveCollection(result);
+
+    await printTodayJoke();
+
   })
   .parse(process.argv);
 

@@ -2,7 +2,6 @@
  * 调用postman接口生成api
  */
 import ApiItem from '../model/ApiItem';
-import * as request from 'request';
 import * as jp from 'jsonpath';
 import Config from '../model/Config';
 import * as req from 'request-promise-native';
@@ -76,37 +75,41 @@ export async function saveCollection(rawData: ApiItem[]) {
     let oldData = JSON.parse(collectionText);
     let toSaveData = _mergeWithOldPostmanData(rawData, oldData);
     convertSpinner.succeed('数据转换完成');
-    saveCollectionData(oldId, toSaveData);
+    await saveCollectionData(oldId, toSaveData);
   } else {
     let toSaveData = _buildBrandNewPostmanData(rawData);
     convertSpinner.succeed('数据转换完成');
-    saveCollectionData(null, toSaveData);
+    await saveCollectionData(null, toSaveData);
   }
 }
 
 
-function saveCollectionData(id: string, toSaveData: any) {
+async function saveCollectionData(id: string, toSaveData: any) {
   const saveSpinner = ora('推送数据到postman....').start();
   let options = getOptions(URL.CREATE_COLLECTION);
   if (!id) {
     //创建
-    request.post(options, (err, res, body) => {
+    options['json'] = toSaveData;
+    let res = req.post(options);
+    await res.then(content => {
       saveSpinner.succeed(`成功推送数据到postman`);
       saveSpinner.succeed(ck.redBright('Done! :)'));
-      if (err) {
+    })
+      .catch(err => {
         saveSpinner.fail('请查询postman key是否已过期！（创建时如果为默认选项key有效为为60天）');
-      }
-    }).json(toSaveData);
+      });
   } else {
     //更新
     options.url = URL.UPDATE_COLLECTION.replace('{{collection_uid}}', id);
-    request.put(options, (err, res, body) => {
+    options['json'] = toSaveData;
+    let resPro = req.put(options);
+    await resPro.then(content => {
       saveSpinner.succeed(`成功推送数据到postman`);
       saveSpinner.succeed(ck.redBright('Done! :)'));
-      if (err) {
+    })
+      .catch(err => {
         saveSpinner.fail('请查询postman key是否已过期！（创建时如果为默认选项key有效为为60天）');
-      }
-    }).json(toSaveData);
+      });
   }
 }
 

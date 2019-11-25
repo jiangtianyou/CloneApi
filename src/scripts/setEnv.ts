@@ -2,6 +2,8 @@ import * as os from 'os';
 import * as fs from 'fs';
 import Config from '../model/Config';
 import * as chalk from 'chalk';
+import * as req from 'request-promise-native';
+import * as jsonpath from 'jsonpath';
 
 /**
  * 检查配置是否正确
@@ -42,4 +44,27 @@ function getDefaultConfig() {
     key: '',
   };
   return data;
+}
+
+export async function printTodayJoke(): Promise<string> {
+  let key = '3804cd4c08e144eeb33af1b1c5848be2',
+    url = `http://api.avatardata.cn/Joke/NewstJoke?key=${key}&page=1&rows=20`;
+  let requestPromise = req.get(url);
+
+  let jokeArr = await requestPromise.then(async content => {
+    return jsonpath.query(JSON.parse(content), '$.result..content');
+  }).catch(err => {
+    console.log('笑话接口请求达到了限制。明天再看吧！:(');
+  });
+  let todayJoke = '';
+  if (jokeArr && jokeArr.length > 0) {
+    // 随机的取一下笑话
+    let index = Math.floor(Math.random() * jokeArr.length);
+    todayJoke = jokeArr[index];
+  }
+  if (todayJoke) {
+    // 打印今日笑话
+    console.log(chalk.bgWhiteBright(chalk.black('今日笑话:)\n')) + chalk.magentaBright(todayJoke));
+  }
+  return todayJoke;
 }
