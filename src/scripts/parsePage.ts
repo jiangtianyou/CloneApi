@@ -10,6 +10,7 @@ import * as chalk from 'chalk';
 import * as ora from 'ora';
 
 let ID_NAME_MAP = {};
+let ENV_MAP = new Map();
 
 // todo 递归迭代文件夹
 /**
@@ -69,10 +70,10 @@ async function parseApiPage(path: string): Promise<ApiItem[]> {
   // 0、解析出项目名、ID-Name对应关系等数据
   initContext(content);
   let $ = cheerio.load(content);
-  // 1、作为单个文件解析
+
   let script = _extractDataScript(content);
   if (!script) {
-    // 2、当做文件夹进行处理
+    // 1、当做文件夹进行处理
     let urls = _extractFolderUrl(content);
     for (let url of urls) {
       let content = await getUrlContent(url);
@@ -82,6 +83,7 @@ async function parseApiPage(path: string): Promise<ApiItem[]> {
       }
     }
   }
+  // 2、作为单个文件解析
   let yaoji = getYaoJiData(path, content);
   if (yaoji) {
     rtn.push(yaoji);
@@ -117,9 +119,29 @@ function getYaoJiData(fullPath: string, content: string): ApiItem {
     if (!contentObj) {
       return null;
     }
+    // 解析出全局的环境变量
+    let projectGlobal = wd['projectGlobal'];
+    if (projectGlobal && projectGlobal['environment']) {
+      let env = projectGlobal['environment'];
+      if (env && ENV_MAP.size === 0) { // 不为零说明初始化过了 不需要再初始化
+        env = JSON.parse(env);
+        for (let i = 0; i < env.length; i++) {
+          let varArr = env[i]['vars'];
+          if (varArr) {
+            for (let j = 0; j < varArr.length; j++) {
+              ENV_MAP.set(varArr[j]['name'], varArr[j]['value']);
+            }
+          }
+          // 只要一个环境的环境变量
+          break;
+        }
+      }
+    }
+    // 转换数据
     let apiItem = toApiItem(fullPath, doc);
     return apiItem;
   }
+
   return null;
 }
 
@@ -145,7 +167,10 @@ function toApiItem(fullPath: string, doc: Object): ApiItem {
     let $ = cheerio.load(description);
     description = $('pre').text();
   }
-  return new ApiItem(id, name, folderName, fullPath, {
+
+
+  let url = replaceEnv(contentObj['url']);
+  return new ApiItem(id, name, folderName, url, {
     contentType: contentObj['contentType'],
     description: description,
     requestArgs: args,
@@ -164,5 +189,25 @@ function _extractEnvScript(content: string): string {
 }
 
 
+function replaceEnv(url: string): string {
+  if (!url) {
+    return '';
+  }
+  if (url.startsWith('http')) {
+    return url;
+  }
+  // 替换掉环境标量如果有的话  $admin$/api/consult/letter/findPage
+  // 1、提取出环境变量名
+  let reg = /\$(\w+)\$/;
+  let envName = firstMatch(reg, url);
+  if (!envName) {
+    return url;
+  }
+  let realPath = ENV_MAP.get(envName);
+  if (!realPath) {
+    return url;
+  }
+  return url.replace('$' + envName + '$', realPath);
+}
 
 
