@@ -1,6 +1,6 @@
 {
   "name": "@jiangtianyou/cloneapi",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "description": "Command line tools to generate common crud code",
   "homepage": "https://github.com/jiangtianyou/CloneApi",
   "keywords": [
