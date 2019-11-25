@@ -9,10 +9,6 @@ import * as req from 'request-promise-native';
 import * as ck from 'chalk';
 import * as ora from 'ora';
 
-
-const exit = process.exit,
-  log = console.log;
-
 const URL = {
   CREATE_COLLECTION: 'https://api.getpostman.com/collections', // POST
   GET_SINGLE_COLLECTION: 'https://api.getpostman.com/collections/{{collection_uid}}', //GET
@@ -20,8 +16,6 @@ const URL = {
   UPDATE_COLLECTION: 'https://api.getpostman.com/collections/{{collection_uid}}', //PUT
   CREATE_ENV: 'https://api.getpostman.com/environments', //Post
 };
-
-let entityArrGlobal = [];
 
 
 function getFolderName(entityArr: ApiItem[]): string {
@@ -70,28 +64,22 @@ function buildSingleRequest(api: ApiItem) {
   };
 }
 
-/**
- * 返回就的collection数
- */
 export async function saveCollection(rawData: ApiItem[]) {
   const convertSpinner = ora('将数据转换成postman需要的数据').start();
   let options = getOptions(URL.GET_ALL_COLLECTION);
   let resText = await req.get(options);
   let names: CollectionItem[] = jp.query(JSON.parse(resText), '$.collections.*');
-  let oldId = names.filter(item => item.name == Config.collectionName).map(item => item.id);
-  if (oldId.length > 0) {
-    //集合已存在
-    options.url = URL.GET_SINGLE_COLLECTION.replace('{{collection_uid}}', oldId[0]);
+  let oldId = names.filter(item => item.name == Config.collectionName).map(item => item.id)[0];
+  if (oldId) {
+    options.url = URL.GET_SINGLE_COLLECTION.replace('{{collection_uid}}', oldId);
     let collectionText = await req.get(options);
-    // 将旧数据与新数据进行合并然后保存
     let oldData = JSON.parse(collectionText);
     let toSaveData = _mergeWithOldPostmanData(rawData, oldData);
-    convertSpinner.succeed('数据转换完成')
-    saveCollectionData(oldId[0], toSaveData);
+    convertSpinner.succeed('数据转换完成');
+    saveCollectionData(oldId, toSaveData);
   } else {
-    // 转换成postman的数据进行返回
     let toSaveData = _buildBrandNewPostmanData(rawData);
-    convertSpinner.succeed('数据转换完成')
+    convertSpinner.succeed('数据转换完成');
     saveCollectionData(null, toSaveData);
   }
 }
@@ -104,8 +92,7 @@ function saveCollectionData(id: string, toSaveData: any) {
     //创建
     request.post(options, (err, res, body) => {
       saveSpinner.succeed(`成功推送数据到postman`);
-      // logck);
-      saveSpinner.succeed(ck.redBright('Done! ❤ ❤ ❤ '));
+      saveSpinner.succeed(ck.redBright('Done! :)'));
       if (err) {
         saveSpinner.fail();
       }
@@ -115,7 +102,7 @@ function saveCollectionData(id: string, toSaveData: any) {
     options.url = URL.UPDATE_COLLECTION.replace('{{collection_uid}}', id);
     request.put(options, (err, res, body) => {
       saveSpinner.succeed(`成功推送数据到postman`);
-      saveSpinner.succeed(ck.redBright('Done! ❤ ❤ ❤'));
+      saveSpinner.succeed(ck.redBright('Done! :)'));
       if (err) {
         saveSpinner.fail();
       }
@@ -149,7 +136,7 @@ function _buildBrandNewPostmanData(entityArr: ApiItem[]) {
   }
   let folderName = getFolderName(entityArr);
   let requestArr = entityArr.map(item => buildSingleRequest(item));
-  let collection = {
+  return {
     'collection': {
       'info': {
         'name': Config.collectionName,
@@ -164,7 +151,6 @@ function _buildBrandNewPostmanData(entityArr: ApiItem[]) {
       ],
     },
   };
-  return collection;
 }
 
 
@@ -174,8 +160,7 @@ function _mergeWithOldPostmanData(entityArr: ApiItem[], oldData: any) {
     return null;
   }
   // 与旧的集合合并调用update接口
-  let itemArr = jp.query(oldData, '$.collection.item.*'),
-    id = jp.query(oldData, '$.collection.info._postman_id')[0];
+  let itemArr = jp.query(oldData, '$.collection.item.*');
   let find = false;
   if (entityArr.length == 1) {
     // 尝试从旧的数据中找所属文件夹
