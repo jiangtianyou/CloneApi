@@ -94,7 +94,7 @@ function saveCollectionData(id: string, toSaveData: any) {
       saveSpinner.succeed(`成功推送数据到postman`);
       saveSpinner.succeed(ck.redBright('Done! :)'));
       if (err) {
-        saveSpinner.fail();
+        saveSpinner.fail('请查询postman key是否已过期！（创建时如果为默认选项key有效为为60天）');
       }
     }).json(toSaveData);
   } else {
@@ -104,7 +104,7 @@ function saveCollectionData(id: string, toSaveData: any) {
       saveSpinner.succeed(`成功推送数据到postman`);
       saveSpinner.succeed(ck.redBright('Done! :)'));
       if (err) {
-        saveSpinner.fail();
+        saveSpinner.fail('请查询postman key是否已过期！（创建时如果为默认选项key有效为为60天）');
       }
     }).json(toSaveData);
   }
