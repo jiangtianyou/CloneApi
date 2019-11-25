@@ -102,7 +102,7 @@ function saveCollectionData(id: string, toSaveData: any) {
     request.post(options, (err, res, body) => {
       saveSpinner.succeed(ck.magentaBright(`成功推送数据到postman`));
       // logck);
-      log(ck.redBright('Done! ❤ ❤ ❤ '))
+      saveSpinner.succeed(ck.redBright('Done! ❤ ❤ ❤ '))
       if (err) {
         saveSpinner.fail();
       }
@@ -112,7 +112,7 @@ function saveCollectionData(id: string, toSaveData: any) {
     options.url = URL.UPDATE_COLLECTION.replace('{{collection_uid}}', id);
     request.put(options, (err, res, body) => {
       saveSpinner.succeed(ck.magentaBright(`成功推送数据到postman`));
-      log(ck.redBright('Done! ❤ ❤ ❤'))
+      saveSpinner.succeed(ck.redBright('Done! ❤ ❤ ❤'))
       if (err) {
         saveSpinner.fail();
       }
