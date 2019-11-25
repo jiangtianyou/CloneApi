@@ -1,6 +1,5 @@
-import * as req from "request-promise-native";
+import * as req from 'request-promise-native';
 import * as ora from 'ora';
-import * as chalk from 'chalk';
 
 export async function getUrlContent(path: string): Promise<string> {
   const downloadSpinner = ora(`正在下载页面${path}的数据`).start()
