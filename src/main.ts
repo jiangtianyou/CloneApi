@@ -10,7 +10,7 @@ import * as ck from 'chalk';
 const exit = process.exit,
   log = console.log;
 
-program.version('1.1.0')
+program.version('1.1.4')
   .arguments('<bean> [key]')
   .description('clone小幺鸡api到postman')
   .action(async function(bean, key) {
@@ -21,7 +21,8 @@ program.version('1.1.0')
     initEnv();
     let result: ApiItem[] = await parse(bean);
     if (result.length === 0) {
-      log(ck.bgRedBright('未提取到有效的api数据，程序将要推出'));
+      log(ck.bgRedBright('未提取到有效的api数据，看完笑话洗洗睡吧！'));
+      await printTodayJoke();
       exit();
     }
     await saveCollection(result);
