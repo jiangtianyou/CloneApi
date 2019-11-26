@@ -47,10 +47,10 @@ function getDefaultConfig() {
 }
 
 export async function printTodayJoke(): Promise<string> {
+  let randomPage = Math.floor(Math.random() * 15)+1;
   let key = '3804cd4c08e144eeb33af1b1c5848be2',
-    url = `http://api.avatardata.cn/Joke/NewstJoke?key=${key}&page=1&rows=20`;
+    url = `http://api.avatardata.cn/Joke/NewstJoke?key=${key}&page=${randomPage}&rows=20`;
   let requestPromise = req.get(url);
-
   let jokeArr = await requestPromise.then(async content => {
     return jsonpath.query(JSON.parse(content), '$.result..content');
   }).catch(err => {
