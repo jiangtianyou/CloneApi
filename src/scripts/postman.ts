@@ -59,7 +59,7 @@ function buildSingleRequest(api: ApiItem) {
       ],
       'body': {
         'mode': 'raw',
-        'raw': JSON.stringify(transformedArgs)
+        'raw': JSON.stringify(transformedArgs,null,2)
         // 'urlencoded': !api.data.requestArgs ? [] : transformedArgs,
       },
     },
