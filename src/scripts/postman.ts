@@ -28,15 +28,22 @@ function getFolderName(entityArr: ApiItem[]): string {
 function buildSingleRequest(api: ApiItem) {
 
   let args = api.data.requestArgs;
-  let transformedArgs = [];
+  let transformedArgs = {};
   if (args) {
-    transformedArgs = api.data.requestArgs.map(item => {
-      return {
-        key: item.name,
-        description: item.description,
-      };
-    });
+    // json形式的参数
+    args.forEach((ele,index) => {
+      transformedArgs[ele.name] = !ele.description ? '' :ele.description ;
+    })
+    // form形式的参数
+    // transformedArgs = api.data.requestArgs.map(item => {
+    //   return {
+    //     key: item.name,
+    //     description: item.description,
+    //   };
+    // });
   }
+  // 转换成json方式
+
   return {
     'name': api.name,
     'request': {
@@ -48,16 +55,13 @@ function buildSingleRequest(api: ApiItem) {
           'key': 'Content-Type',
           'name': 'Content-Type',
           'type': 'text',
-          'value': 'application/x-www-form-urlencoded',
-        },
-        {
-          'key': 'token',
-          'value': '{{token}}',
-        },
+          'value': 'application/json',
+        }
       ],
       'body': {
-        'mode': 'urlencoded',
-        'urlencoded': !api.data.requestArgs ? [] : transformedArgs,
+        'mode': 'raw',
+        'raw': JSON.stringify(transformedArgs)
+        // 'urlencoded': !api.data.requestArgs ? [] : transformedArgs,
       },
     },
   };
