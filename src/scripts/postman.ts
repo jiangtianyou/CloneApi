@@ -42,7 +42,6 @@ function buildSingleRequest(api: ApiItem) {
     //   };
     // });
   }
-  // 转换成json方式
 
   return {
     'name': api.name,
